@@ -1,43 +1,23 @@
 import{mkdirSync as M,readdirSync as D,readFileSync as F,writeFileSync as W}from'fs'
-// S[op]-48: imm bytes<<3 | pops<<1 | net push; below 0 = no such opcode
-const I=process.env.MAKEFUN_INPUT_DIR??'/input',O=process.env.MAKEFUN_OUTPUT_DIR??'/output',S='09Q23456        444444424442444 444             @BB@0           24              2212',
-X=(p,q)=>{let n=p.length,s=new Int32Array(256),R=[],m=new Int32Array(256),o=new Uint8Array(65536),l=0,i=0,j=0,c=0,t=0,x,a,b,k,y,z,E=v=>[o.slice(0,l),v]
-for(;;){if(t++>999999)return E(10);if(c<0||c>=n)return E(9);x=p[c];k=(S.charCodeAt(x)|0)-48;if(k<0)return E(5);z=c+1+(k>>3);if(z>n)return E(9)
-if(j<(k>>1&3))return E(2);if(j+(k&1)>256)return E(3);b=s[j-1];a=s[j-2];if(x>18&x<23&&!b)return E(4);y=z+((p[c+1]|p[c+2]<<8)<<16>>16)
-switch(x){case 0:return E(0)
-case 1:s[j++]=p[c+1]<<24>>24;break
-case 2:s[j++]=p[c+1]|p[c+2]<<8|p[c+3]<<16|p[c+4]<<24;break
+let{MAKEFUN_INPUT_DIR:I='/input',MAKEFUN_OUTPUT_DIR:O='/output'}=process.env,S='09Q23456        444444424442444 444             @BB@0           24              2212'
+for(let d of D(I)){let P=I+`/${d}/`,p=F(P+'program.bin'),q=F(P+'input.bin'),n=p.length,s=new Int32Array(512),R=[],o=[],i=0,j=0,c=0,t=0,e=-1,x,a,b,k,u,z
+for(;e<0;)if((e=t++>=1e6?10:c<0|c>=n?9:(k=(S.charCodeAt(x=p[c])|0)-48)<0?5:(z=c-~(k>>3))>n?9:j<(k>>1&3)?2:j+(k&1)>256?3:(b=s[j-1],a=s[j-2],u=p[c+1]|p[c+2]<<8,!b&x>18&x<23)?4:-1)<0)if(c=z,x>15&x<35)s[j-=k>>1&3]=[a+b,a-b,Math.imul(a,b),a/b,a%b,(a>>>0)/(b>>>0),(a>>>0)%(b>>>0),-b,a&b,a|b,a^b,~b,a<<b,a>>b,a>>>b,0,a==b,a<b,a>>>0<b>>>0][x-16],j++;else switch(x){case 0:e=0;break
+case 1:s[j++]=u<<24>>24;break
+case 2:s[j++]=u|p[c-2]<<16|p[c-1]<<24;break
 case 3:j--;break
 case 4:s[j++]=b;break
 case 5:s[j-1]=a;s[j-2]=b;break
 case 6:s[j++]=a;break
-case 7:y=s[j-3];s[j-3]=a;s[j-2]=b;s[j-1]=y;break
-case 16:s[--j-1]=a+b;break
-case 17:s[--j-1]=a-b;break
-case 18:s[--j-1]=Math.imul(a,b);break
-case 19:s[--j-1]=a/b;break
-case 20:s[--j-1]=a%b;break
-case 21:s[--j-1]=(a>>>0)/(b>>>0);break
-case 22:s[--j-1]=(a>>>0)%(b>>>0);break
-case 23:s[j-1]=-b;break
-case 24:s[--j-1]=a&b;break
-case 25:s[--j-1]=a|b;break
-case 26:s[--j-1]=a^b;break
-case 27:s[j-1]=~b;break
-case 28:s[--j-1]=a<<b;break
-case 29:s[--j-1]=a>>b;break
-case 30:s[--j-1]=a>>>b;break
-case 32:s[--j-1]=a==b;break
-case 33:s[--j-1]=a<b;break
-case 34:s[--j-1]=a>>>0<b>>>0;break
-case 49:case 50:if(--j,!b==(x<50)){c=y;continue}break
-case 48:c=y;continue
-case 51:if(R.length>63)return E(7);R.push(z);c=p[c+1]|p[c+2]<<8;continue
-case 52:if(!R.length)return E(8);c=R.pop();continue
-case 64:if(b>>>0>255)return E(6);s[j-1]=m[b];break
-case 65:if(b>>>0>255)return E(6);m[b]=a;j-=2;break
-case 80:y=''+b;if(l+y.length>65536)return E(11);for(k of y)o[l++]=k.charCodeAt();j--;break
-case 81:if(l>65535)return E(11);o[l++]=b;j--;break
-case 82:s[j++]=i<q.length?q[i++]:-1;break
-case 83:return E(b&255)}c=z}}
-for(const d of D(I)){let[o,e]=X(F(`${I}/${d}/program.bin`),F(`${I}/${d}/input.bin`)),f=O+'/'+d;M(f,{recursive:!0});W(f+'/stdout.bin',o);W(f+'/exit.txt',e+'')}
+case 7:s[j-1]=s[j-3];s[j-3]=a;s[j-2]=b;break
+case 49:b=!b
+case 50:j--;if(!b)break
+case 48:c+=u<<16>>16;break
+case 51:R.length>63?e=7:(R.push(c),c=u);break
+case 52:R.length?c=R.pop():e=8;break
+case 64:b>>>0>255?e=6:s[j-1]=s[b+256];break
+case 65:j-=2;b>>>0>255?e=6:s[b+256]=a;break
+case 80:j--;k=Buffer.from(''+b);o.length+k.length>65536?e=11:o.push(...k);break
+case 81:j--;o.length>65535?e=11:o.push(b&255);break
+case 82:s[j++]=q[i++]??-1;break
+case 83:e=b&255}
+d=O+'/'+d;M(d,{recursive:!0});W(d+'/stdout.bin',Buffer.from(o));W(d+'/exit.txt',''+e)}
